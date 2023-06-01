@@ -43,7 +43,7 @@
 
 
 \author{Natalia da Silva \and
-        Ignacio Alvarez\and
+        Ignacio Alvarez-Castro\and
         Leonardo Moreno\and
         Andrés Sosa}
 
@@ -54,7 +54,7 @@
               \email{natalia.dasilva@fcea.edu.uy}\\
               ORCID:0000-0002-6031-7451\\
            \and
-          Ignacio Alvarez \at 
+          Ignacio Alvarez-Castro \at 
           Instituto de Estadística (IESTA), Universidad de la República, Montevideo, Uruguay.\\
           \email{ignacio.alvarez@fcea.edu.uy}\\
           ORCID:0000-0003-1633-2432\\
