@@ -1,7 +1,9 @@
 library(tidyverse)
-
 datalink <- "https://www.dropbox.com/s/lsninjaf4t4tdqj/datos_meli.csv?dl=1"
 meli_modelo <- read_csv( datalink )
+ffpath <- 'paper/figures/'
+
+# 1 dataset for models  ---------------------------------------
 
 parasumar <- c("ascensores", "garage", "salon_comunal" ,
                "aircond" ,"cocina","terraza" , "comedor",  
@@ -30,42 +32,23 @@ df <- meli_modelo |>
   select( all_of( c("lprecio","lpreciom2", preds, "long", "lat") ) ) |> 
   mutate_if( is.character, as.factor)
 
-set.seed(8888)
 ind <- sample(1:nrow(df), size = floor(nrow(df)*.7))
 train <- df[ind,  ]
 test  <- df[-ind, ]
 
 saveRDS(list(df= df, train= train, test= test ), file='data/mds_datos.rds')
 
-# mapa de precios  ----------------------------------------------------
+# 2 map figure with prices  ----------------------------------------------------
 library(leaflet)
-qpal1 <- colorQuantile(c("skyblue2","deepskyblue1","blue","darkorange2","firebrick4"),
-                       df$lpreciom2, n = 5)
+library(mapview) # for saving png file
 
-qpal1 <- colorQuantile("Blues", df$lpreciom2, n = 5)
-qpal1 <-colorNumeric("RdBu", domain =  df$lpreciom2,reverse = TRUE )
-qpal1 <-colorNumeric("RdBu", domain =  df$lpreciom2,reverse = TRUE )
-
-# el codigo produce el mapa y lo salvamos en png
-# con export ... habria que hacerlo en el script
-leaflet(df, options = leafletOptions(zoomControl = TRUE, minZoom = 11, maxZoom = 14)) %>% 
-  addTiles() %>% 
-  addCircleMarkers(radius =1, color=~qpal1(df$lpreciom2)) %>% 
-  addLegend("topright", title="Sqm Price (log)", pal = qpal1, values = ~lpreciom2) 
-
-
-
+df$preciom2 <- df$lpreciom2 |> exp()
 qpal2 <-colorNumeric("RdBu", domain =  df$preciom2,reverse = TRUE )
 
-
-# Figure 1: create map and save it as png
-df |> 
-  filter( df$long > -56.3, df$long < -55.95) |> 
-  mutate(preciom2 = exp(lpreciom2)) |> 
-  leaflet(options = leafletOptions(zoomControl = TRUE, minZoom = 11.5, maxZoom = 11.5)) %>% 
+mm <- leaflet(df, options = leafletOptions(zoomControl = TRUE, minZoom = 11.5, maxZoom = 14)) %>% 
   addTiles() %>% 
-  addCircleMarkers(radius =1, color=~qpal2(preciom2)) %>% 
+  addCircleMarkers(radius =1, color=~qpal2(df$preciom2)) %>% 
   addLegend("topright", title="Sqm Price (USD)", pal = qpal2, values = ~preciom2) 
 
-
-
+Sys.setenv(OPENSSL_CONF="/dev/null")
+mapshot(mm, file = paste0(ffpath, 'mapa_preciom2.png'))
