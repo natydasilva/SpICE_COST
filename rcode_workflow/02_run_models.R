@@ -35,16 +35,17 @@ saveRDS(ind.models, 'data/h2o_individual.rds')
 
 h2o.shutdown(FALSE)
 
-# h2o information session: 
-# R is connected to the H2O cluster: 
-#   H2O cluster uptime:         1 seconds 415 milliseconds 
-# H2O cluster timezone:       America/Montevideo 
+# h2o information session: ------------------------------
+# 
+#   R is connected to the H2O cluster: 
+#   H2O cluster uptime:         2 seconds 2 milliseconds 
+# H2O cluster timezone:       America/Argentina/Buenos_Aires 
 # H2O data parsing timezone:  UTC 
-# H2O cluster version:        3.40.0.1 
-# H2O cluster version age:    3 months and 20 days 
-# H2O cluster name:           H2O_started_from_R_nachalca_awy887 
+# H2O cluster version:        3.44.0.3 
+# H2O cluster version age:    2 months and 8 days 
+# H2O cluster name:           H2O_started_from_R_nachalca_yed043 
 # H2O cluster total nodes:    1 
-# H2O cluster total memory:   15.00 GB 
+# H2O cluster total memory:   3.88 GB 
 # H2O cluster total cores:    4 
 # H2O cluster allowed cores:  4 
 # H2O cluster healthy:        TRUE 
@@ -52,4 +53,4 @@ h2o.shutdown(FALSE)
 # H2O Connection port:        54321 
 # H2O Connection proxy:       NA 
 # H2O Internal Security:      FALSE 
-# R Version:                  R version 4.2.3 (2023-03-15) 
+# R Version:                  R version 4.3.2 (2023-10-31) 
