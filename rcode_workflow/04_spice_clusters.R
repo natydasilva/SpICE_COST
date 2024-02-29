@@ -6,14 +6,14 @@ library(RColorBrewer)
 library(patchwork)
 library(KernSmooth)
 library(ClustGeo)
+library(sf)
+ffpath <- 'articulo_revision/figures/'
 
-# 1 Datos ICE ------------------
+# 1 load datasets ------------------
 dt.ll <-readRDS("data/mds_datos.rds")
-#dt.ll <-readRDS("../SpICE_COST/data/mds_datos.rds")
 df <- dt.ll$test[complete.cases(dt.ll$test), ]
 
 ice.lsup <- readRDS("data/ice_lsup.rds")
-#ice.lsup <- readRDS("../SpICE_COST/data/ice_lsup.rds")
 
 
 ICERF_matriz <- ice.lsup$drf |> 
@@ -25,15 +25,12 @@ ICERF_matriz <- ice.lsup$drf |>
 grilla <- ice.lsup[[2]]$lsup_constru |> unique()
 
 
-# ICE derivadas y suavizadas --------------
-
-? locpoly
+# ICE: derivatives and smoothing --------------
 ICEsuave <- apply( ICERF_matriz, 1,  FUN=function(crv) {
   ll <- locpoly(x=grilla, y=crv, gridsize = length(grilla), bandwidth = diff(grilla)[1] )
   ll$y |> as_tibble() |> t()
 }, simplify = FALSE ) |> 
   do.call(rbind, args=_)
-
 
 ICEderiva <- apply( ICERF_matriz, 1, FUN=function(crv) {
   ll <- locpoly(x=grilla, y=crv, gridsize = length(grilla), bandwidth = diff(grilla)[1], drv=1)
@@ -43,26 +40,33 @@ ICEderiva <- apply( ICERF_matriz, 1, FUN=function(crv) {
 
 # Distance matrices and clusters  -------------------
 
-# geo distance
-DD1<- df[,c("long","lat")]  |> scale() |>  dist()
+DD1 <- df[,c("long","lat")] |> 
+  st_as_sf( coords = c("lat", "long"), crs = 4326) |> 
+  st_distance()
 
-# Svolev distance among ice curves
+# Distancias Sovolev entre ICEs
 DD0 <- sqrt( dist(ICEsuave)^2 + dist(ICEderiva)^2 )
 
 saveRDS(DD1, file='data/geoDist.rds') 
 saveRDS(DD0, file='data/iceDist.rds') 
-# DD1 <- readRDS('data/geoDist.rds')
-# DD0 <- readRDS('data/iceDist.rds')
+
+DD1 <- readRDS('data/geoDist.rds')
+DD0 <- readRDS('data/iceDist.rds')
+
 
 # choosing alpha: use a random sample 
-# muestra para obtener alpha optimo
-set.seed(8)
 qs = quantile(df$lpreciom2, probs=seq(0,1,.1))
+set.seed(8)
 id.smp <- df |> mutate(qq = cut(lpreciom2, breaks = qs, include.lowest = TRUE),
                        rr = 1:nrow(df) ) |>
-  group_by(qq) |> sample_frac(.3) |> pull(rr)
+  group_by(qq) |> sample_frac(.2) |> pull(rr)
 
-DD1.smp <- df[id.smp, c("long","lat")]  |> scale() |>  dist()
+
+DD1.smp <- df[id.smp, c("long","lat")] |> 
+  st_as_sf( coords = c("lat", "long"), crs = 4326) |> 
+  st_distance() |> 
+  as.dist()
+
 DD0.smp <- sqrt( dist(ICEsuave[id.smp,])^2 + dist(ICEderiva[id.smp, ])^2 )
 
 alpha.info <- NULL
@@ -73,11 +77,12 @@ for(kk in 3:5) {
   alpha.info <- rbind(alpha.info ,
                       cbind(k=alp.opt$K, alpha=alp.opt$range.alpha, alp.opt$Q,  alp.opt$Qnorm)
   )
-  
 }
-saveRDS(as_tibble(alpha.info), file='data/iceDist.rds') 
+saveRDS(alpha.info, file='data/alpha_info.rds') 
 
-as_tibble(alpha.info) |> 
+
+alpha.info <- readRDS('data/alpha_info.rds')
+as_tibble(alpha.info) |> filter(k %in% 3:5) |> 
   select(-Q0norm, -Q1norm) |> 
   #select(-Q0, -Q1) |> 
   pivot_longer(cols = 3:4) |>  
@@ -85,16 +90,16 @@ as_tibble(alpha.info) |>
   geom_point() + geom_line() + 
   labs(y = 'Cluster homogeneity', color = '') + 
   facet_wrap(~k) + 
-  scale_x_continuous(breaks = seq(0,1, .1)) + 
-  scale_color_brewer(palette = 'Dark2') +
-  theme(aspect.ratio = 1)
+  scale_color_brewer(palette = 'Dark2') + 
+  theme_bw() + theme(aspect.ratio = 1)
 
-ggsave(file='paper/figures/fig-alphaoptimo.pdf', height = 7, width = 7)
+ggsave(file= paste0(ffpath, 'fig-alphaoptimo.pdf'), height = 7, width = 7)
+
+
 
 
 # Cluster options
-
-pr <- data.frame( alps = c(.5, .6, .5), k = c(4,4,5) )
+pr <- data.frame( alps = .5, k = 3:5 )
 grupos.info <- NULL
 for (j in 1:3) {
   tt  <- hclustgeo(D0=DD0, D1=DD1, alpha=pr$alp[j] ) 
@@ -104,33 +109,36 @@ for (j in 1:3) {
 }
 saveRDS(grupos.info, file = "data/grupos_infos.rds")
 
-
-# Gráficos ------------------------------
-library(tidyverse)
-pr <- data.frame( alps = c(.5, .6, .5), k = c(4,4,5) )
+# Prepare data for ploting ------------------------------
+pr <- data.frame( alps = .5, k = 3:5 )
 grupos.info <- readRDS("data/grupos_infos.rds")
 #grupos.info <-readRDS("../SpICE_COST/data/grupos_infos.rds")
 
-# agregamos columnas con grupos en df y curvas ice
-df <- df |> 
-  mutate(g1 = factor(grupos.info$grupos[grupos.info$alpha==.5 & grupos.info$k == 4]), 
-         g2 = factor(grupos.info$grupos[grupos.info$alpha==.6 & grupos.info$k == 4]),
-         g3 = factor(grupos.info$grupos[grupos.info$alpha==.5 & grupos.info$k == 5])  )   
+grupos.info$gr.nm <- apply(grupos.info, 1, function(x) paste0('gr', x[2], '_al', 100*x[1]) )
+gr.nm <- unique(grupos.info$gr.nm)
 
-colnames(df)[15:17] <- paste('grupos', apply( pr, 1, function(x) paste(x, collapse = "_") ), sep="_")
+nn <- ncol(df)
+for (g in 1:10) {
+  df[ ,nn+g] <-factor(grupos.info$grupos[grupos.info$gr.nm == gr.nm[g]])
+}
+colnames(df)[15:24] <- gr.nm
 
-ICERF_matriz$g1 <- factor(grupos.info$grupos[grupos.info$alpha==.5 & grupos.info$k == 4])
-ICERF_matriz$g2 <- factor(grupos.info$grupos[grupos.info$alpha==.6 & grupos.info$k == 4])
-ICERF_matriz$g3 <- factor(grupos.info$grupos[grupos.info$alpha==.5 & grupos.info$k == 5])
+nn <- ncol(ICERF_matriz)
+for (g in 1:10) {
+  ICERF_matriz[ ,nn+g] <-factor(grupos.info$grupos[grupos.info$gr.nm == gr.nm[g]])
+}
+colnames(ICERF_matriz)[31:40] <- gr.nm
 
-colnames(ICERF_matriz)[31:33] <- paste('grupos', apply( pr, 1, function(x) paste(x, collapse = "_") ), sep="_")
 
-
-# funciones para dibujar
-pl_curvas_fn <- function(gg, gr = 1:6, sz=0.5, aa = 1/100, facetas=TRUE, ICERF_matriz=NULL) { 
+# ploting functions --------------
+pl_curvas_fn <- function(gg, gr = 1:6, sz=0.5, aa = 1/100, 
+                         facetas=TRUE, ICERF_matriz=NULL, colores=NULL) { 
   
   fc <- paste("~", as_name(quo( {{gg}} )) ) |> as.formula()
-  colores <- palette.colors(palette="Set1")[gr]
+  
+  if (is.null(colores)) {
+    colores <- palette.colors(palette="Set1")[gr]
+  }
   
   # Dibujar las curvas por grupo
   pp <- ICERF_matriz |>
@@ -151,14 +159,16 @@ pl_curvas_fn <- function(gg, gr = 1:6, sz=0.5, aa = 1/100, facetas=TRUE, ICERF_m
   return(pp)
 }
 
-pl_mapa_fn <- function(gg, gr=1:6, sz=0.5, facetas=TRUE, zz=13, df=NULL) { 
+pl_mapa_fn <- function(gg, gr=1:6, sz=0.5, facetas=TRUE, zz=13, df=NULL, colores=NULL) { 
   # Dibujar los mapas
   
   fc <- paste("~", as_name(quo( {{gg}} )) ) |> as.formula()
-  colores <- palette.colors(palette="Set1")[gr]
-  montevideo <- c(left = -56.286532, bottom = -34.95, right = -56.004532, top =-34.801112 )
+  if(is.null(colores)) {
+    colores <- palette.colors(palette="Set1")[gr]
+  }
+  montevideo <- c(left = -56.286532, bottom = -34.95, right = -56.004532, top =-34.82 )
   
-  pp <- get_stamenmap(bbox = montevideo, zoom = zz) |> 
+  pp <- get_stadiamap(bbox = montevideo, zoom = zz) |> 
     ggmap() + 
     geom_point(data= filter(df, {{gg}} %in% gr ) ,
                aes(x=long, y=lat, color={{gg}}), alpha=0.7,  size=sz)+
@@ -166,24 +176,20 @@ pl_mapa_fn <- function(gg, gr=1:6, sz=0.5, facetas=TRUE, zz=13, df=NULL) {
     theme_nothing()
   
   if (facetas) {
-    pp <- pp + facet_wrap(fc, nrow = 1) 
+    pp <- pp + facet_wrap(fc) 
   }
   return(pp)
 }
 
+# Create figures -------------------------
+
+# need stadia map key: see help(register_stadiamaps)
+mapakey<- 'get-your-key' 
+register_stadiamaps(mapakey)
 
 # 4 clusters with alpha = 0.5
-p1 <- pl_mapa_fn(gg=grupos_0.5_4, gr=1:4, sz=1, df=df, facetas=FALSE)
-p2 <- pl_curvas_fn(gg=grupos_0.5_4, gr=1:4, ICERF_matriz=ICERF_matriz)
+p1 <- pl_mapa_fn(gg=grupos_0.5_4, gr=1:4, sz=.5, df=df, facetas=FALSE)
+p2 <- pl_curvas_fn(gg=grupos_0.5_4, gr=1:4, ICERF_matriz=ICERF_matriz, sz=.5, aa=1/150)
 p1 / p2 
-ggsave(file='paper/figures/fig-4grupos-alpha5.pdf', height = 7, width = 7)
 
-# other combinations
-# p1 <- pl_mapa_fn(gg=grupos_0.6_4, gr=1:4, sz=1, df=df, facetas=FALSE)
-# p2 <- pl_curvas_fn(gg=grupos_0.6_4, gr=1:4, ICERF_matriz=ICERF_matriz)
-# p1 / p2 
-# ggsave(file='paper/figures/fig-4grupos-alpha6.pdf', height = 7, width = 7)
-# p1 <- pl_mapa_fn(gg=grupos_0.5_5, gr=1:5, sz=1, df=df, facetas=FALSE)
-# p2 <- pl_curvas_fn(gg=grupos_0.5_5, gr=1:5, ICERF_matriz=ICERF_matriz)
-# p1 / p2 
-# ggsave(file='articulo/figuras/fig-5grupos.pdf', height = 7, width = 7)
+ggsave(file='paper/figures/fig-4grupos-alpha5.pdf', height = 7, width = 7)
