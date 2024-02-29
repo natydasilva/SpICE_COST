@@ -18,7 +18,7 @@ data_fn <- function(N=40, n=50, GG, bb = diff(GG)[1]) {
   # true mean functions
   mu.data <- rbind(mu1 = mu1_fn(GG), mu2 = mu2_fn(GG), mu3 = mu3_fn(GG), mu4 = mu4_fn(GG) )
   
-  # obsserved data
+  # observed data
   obs.data = matrix(NA, nrow=N, ncol = n)
   rr <- rep(1:4, each=10)
   for (i in 1:N) {
