@@ -4,6 +4,7 @@
 
 library(tidyverse)
 library(h2o)
+ffpath <- 'paper/figures/'
 
 h2o.init( )
 h2o.no_progress()
@@ -18,6 +19,7 @@ ind.mods <- lapply( indi.path, h2o.loadModel )
 names(ind.mods) <- c("deeplearning", "drf", "glm", "stackedensemble", "xgboost")
 
 # Model performance in test data
+# performance de modelo en CV y testing
 mape_fun <- function(ypred, ytrue) 100*mean( abs(ypred-ytrue)/ytrue) 
 # h2o.performance(ind.mods$drf, newdata = test)
 
@@ -32,42 +34,52 @@ perf_fn <- function(mm) {
   )
 }
 
-md.perf <- lapply(ind.mods, perf_fn) |> bind_rows(.id = 'modelo') |> 
+md.perf <- lapply(ind.mods, perf_fn) |> bind_rows(.id = 'model') |> 
   arrange(rMSE)
 
-# Performance table 
 library(xtable)
 options(xtable.comment=FALSE)
 xtable(md.perf, caption = 'Predictive performance measures by model',
        label = 'comparo') |> 
-  print(file='paper/figures/table-performance.tex', caption.placement='top')
+  print(file=paste0(ffpath, 'table-performance.tex') , caption.placement='top')
+
 #================================================
 # 3.2 Variable importance h2o models --------------------
+
+# variable labels
+vvlabs <- c('ammenities', 'elevators', 'bathroom', 'neighborhood', 'condition', 'restrooms',
+            'expenses', 'garage', 'ldistance_beach', 'larea_apt')
+
 importance <- lapply(ind.mods, h2o.permutation_importance, newdata=test) |> 
-  bind_rows(.id = 'modelo')
+  bind_rows(.id = 'modelo') |> 
+  mutate(varname = factor(Variable, labels = vvlabs))
 
 importance |> data.frame() |> 
-  select(modelo, Variable, Scaled.Importance)  |> 
+  select(modelo, varname, Scaled.Importance)  |> 
   ggplot( ) + 
-  geom_col(aes(y=Scaled.Importance, x = reorder(Variable, Scaled.Importance)), fill='steelblue' ) + 
+  geom_col(aes(y=Scaled.Importance, x = reorder(varname, Scaled.Importance)), fill='steelblue' ) + 
   coord_flip() + 
-  facet_grid(~modelo) + 
+  facet_wrap(~modelo) + 
   labs(y = 'Importance (scaled to 1)', x = '', fill='') +
-  scale_fill_brewer(palette = 'Set1') + 
-  theme_bw() + theme(aspect.ratio = 2)
+  theme_bw() 
 
-ggsave(file='paper/figures/fig-importance.pdf', height = 7, width = 7)
+ggsave(file=paste0(ffpath, 'fig-importance.pdf'), height = 7, width = 7)
+saveRDS(data.frame(importance) , "data/importance_info.rds")
+
+
+
 #================================================
 # 3.3 PDP and ALE plots for selected variables  -----------------
 
 library(pdp)
 library(ALEPlot) 
 
+# predicciones con los modelos individuales
 yhat_fn <- function(X.model, newdata) { 
   dd <- as.h2o(newdata)
   h2o.predict(X.model, dd) |> as.matrix() |> as.numeric()
 }
-# yhat_fn(ind.mods$drf, test[1:10,])
+yhat_fn(ind.mods$drf, test[1:10,])
 
 aleplot_fn <- function(mm, j) {
   x<-ALEPlot(X = as.data.frame(test), X.model = mm, pred.fun = yhat_fn, J=j)
@@ -89,6 +101,7 @@ for (i in 1:length(jjs)) {
 names(ll) <- colnames(test)[jjs]
 aleinfo <- bind_rows(ll, .id = 'variable')
 
+
 ll <- vector(mode = 'list', length = length(jjs))
 for (i in 1:length(jjs)) {
   ll[[i]] <- lapply(ind.mods, pdpplot_fn, j=jjs[i]) %>% bind_rows(.id = 'modelo')
@@ -100,56 +113,34 @@ saveRDS( list(pdp=pdpinfo, ale=aleinfo), "data/alepdp_info.rds")
 
 
 # Figure: lsup profile effect with ALE and PDP
+xx <- readRDS( "data/alepdp_info.rds" )
+pdpinfo <- xx$pdp
+aleinfo <- xx$ale
+
+# correct var names
+aleinfo$varname <- NULL
+pdpinfo$varname <- NULL
+
+aleinfo$varname = factor(aleinfo$variable, labels = vvlabs[c(7, 9, 10)] )
+pdpinfo$varname = factor(pdpinfo$variable, labels = vvlabs[c(7, 9, 10)] )
+
 list('PDP' = filter(pdpinfo, variable == 'lsup_constru'), 
      'ALE' =  filter(aleinfo, variable == 'lsup_constru')
 ) |> 
   bind_rows(.id = 'met') |> 
   ggplot() + 
   geom_line( mapping  = aes(x=x, y=f, color=met) ) + 
-  facet_wrap(~modelo, ncol = 5) + scale_color_brewer(palette = 'Dark2') + 
+  # facet_wrap(~modelo, ncol = 5) + scale_color_brewer(palette = 'Dark2') + 
+  facet_wrap(~modelo) + scale_color_brewer(palette = 'Dark2') + 
   labs(x='Apartment area (in log)', y='Expected price (in log)', color='Method') + 
   geom_rug(data=as.data.frame(test), aes(x=lsup_constru),alpha=1/50,inherit.aes = F)  + 
-  theme(aspect.ratio = 1)
-ggsave('paper/figures/fig-efecto-lsub.pdf', height = 7, width = 7)
+  theme(aspect.ratio = 1, legend.position = c(.8, .2))
 
-# Other possible figures: 
-# los pdp
-# pdpinfo |> 
-#   filter(variable != 'expensas') |> 
-#   ggplot() + 
-#   geom_line( mapping  = aes(x=x, y=f, color=modelo) ) + 
-#   facet_wrap(~variable, ncol = 3, scales = 'free') + 
-#   scale_color_brewer(palette = 'Set1') + 
-#   labs(x='', y='Expected price (in log)', color='', title ='PDP for selected variables') + 
-#   theme_bw() + 
-#   theme(aspect.ratio = 1)
-# 
-# aleinfo |> 
-#   filter(variable != 'expensas') |> 
-#   ggplot() + 
-#   geom_line( mapping  = aes(x=x, y=f, color=modelo) ) + 
-#   facet_wrap(~variable, ncol = 3, scales = 'free') + 
-#   scale_color_brewer(palette = 'Set1') + 
-#   labs(x='', y='Expected price (in log)', color='', title = 'ALE for selected variables') + 
-#   theme_bw() + 
-#   theme(aspect.ratio = 1)
-# 
-# # figura playa
-# list('PDP' = filter(pdpinfo, variable == 'ldistancia_playa'), 
-#      'ALE' =  filter(aleinfo, variable == 'ldistancia_playa')
-# ) |> 
-#   bind_rows(.id = 'met') |> 
-#   ggplot() + 
-#   geom_line( mapping  = aes(x=x, y=f, color=met) ) + 
-#   facet_wrap(~modelo, ncol = 5) + scale_color_brewer(palette = 'Dark2') + 
-#   labs(x='Distance to the beach (in log)', y='Expected price (in log)', color='Method') + 
-#   geom_rug(data=as.data.frame(test), aes(x=ldistancia_playa),alpha=1/50,inherit.aes = F)  + 
-#   theme(aspect.ratio = 1)
+ggsave(paste0(ffpath,'fig-efecto-lsub.pdf'), height = 7, width = 7)
 
 #================================================
 # 3.4 ICE curves for lsup_constru
-
-# (ojo: capaz que yhat_fn necesita cambiar el nombre del argumento x.model)
+# (warning: yhat_fn might need to rename x.model argument)
 yhat_fn <- function(object, newdata) { 
   dd <- as.h2o(newdata)
   h2o.predict(object, dd) |> as.matrix() |> as.numeric()
@@ -167,9 +158,9 @@ for (i in 1:5) {
 names(ice.lsup) <- names(ind.mods)
 saveRDS(ice.lsup, "data/ice_lsup.rds")
 
-# Figuras de las curvas ICE  
-
-# test <- dts$test  
+# ICE curves figures
+ice.lsup <- readRDS("data/ice_lsup.rds")
+test <- dts$test  
 
 zz <- test |> as.data.frame() |>
   mutate(yhat.id = 1:nrow(test), 
@@ -186,15 +177,42 @@ ice.lsup |> bind_rows(.id = 'modelo') |>
   labs(x='Apartment area (in log)', y='Expected price (in log)') +
   facet_wrap( ~modelo) + 
   theme_bw()
-ggsave(file='paper/figures/fig-ice-sup-dec.pdf', height = 7, width = 7)  
+
+ggsave(file=paste0(ffpath,'fig-ice-sup-dec.pdf'), height = 7, width = 7)  
 
 ice.lsup$drf |> 
   filter( yhat.id %in% zz$yhat.id) |> 
   ggplot(aes(x=lsup_constru, y=yhat, group=yhat.id) ) +
   geom_line( alpha=1/50 , color = 'steelblue') +  
   labs(x='Apartment area (in log)', y='Expected price (in log)') +
-  theme_bw()
-ggsave(file='paper/figures/fig-ice-sup-decRF.pdf', height = 7, width = 7)  
+  theme_bw() + 
+  theme(axis.text.y = element_text(size = I(10)), 
+        axis.text.x = element_text(size = I(10)),
+        axis.title.x = element_text(size = I(20)),
+        axis.title.y = element_text(size = I(20))
+  )
+
+ggsave(file=paste0(ffpath,'fig-ice-sup-decRF.pdf'), height = 7, width = 7)  
+
+
+# plot 3 ICE curves to ilustrated method
+
+ice.lsup$drf |> 
+  #filter( yhat.id %in% zz ) |> 
+  filter( yhat.id %in% c(8204,5283,19632) ) |> 
+  ggplot(aes(x=lsup_constru, y=yhat) ) +
+  #geom_line(aes(group=yhat.id, color = as.factor(yhat.id))) +  
+  geom_line(aes(group=yhat.id, linetype=as.factor(yhat.id)) ) +  
+  #  geom_point(data = yy, aes(lsup_constru, lpreciom2)) + 
+  labs(x='Apartment area (in log)', y='Expected price (in log)') +
+  theme_bw() + 
+  scale_linetype_manual(values = c(3,1,2)) + 
+  theme(axis.title.y = element_text(size = I(15)), 
+        axis.title.x = element_text(size = I(15)), 
+        legend.position = 'none')
+
+ggsave(file=paste0(ffpath, 'fig-3ice-exmp.pdf'), height = 7, width = 7)  
+
 
 h2o.shutdown(FALSE)
 

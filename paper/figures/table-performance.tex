@@ -1,0 +1,16 @@
+\begin{table}[ht]
+\centering
+\caption{Predictive performance measures by model} 
+\label{comparo}
+\begin{tabular}{rlrrrr}
+  \hline
+ & model & rMSE & R2 & MAEo & MAPEo \\ 
+  \hline
+1 & stackedensemble & 0.14 & 0.81 & 242.68 & 9.58 \\ 
+  2 & drf & 0.14 & 0.80 & 251.08 & 9.94 \\ 
+  3 & xgboost & 0.15 & 0.80 & 254.48 & 10.06 \\ 
+  4 & deeplearning & 0.20 & 0.63 & 395.84 & 15.18 \\ 
+  5 & glm & 0.22 & 0.55 & 427.72 & 17.13 \\ 
+   \hline
+\end{tabular}
+\end{table}
