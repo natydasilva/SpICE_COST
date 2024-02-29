@@ -9,9 +9,12 @@ library(ClustGeo)
 
 # 1 Datos ICE ------------------
 dt.ll <-readRDS("data/mds_datos.rds")
+#dt.ll <-readRDS("../SpICE_COST/data/mds_datos.rds")
 df <- dt.ll$test[complete.cases(dt.ll$test), ]
 
 ice.lsup <- readRDS("data/ice_lsup.rds")
+#ice.lsup <- readRDS("../SpICE_COST/data/ice_lsup.rds")
+
 
 ICERF_matriz <- ice.lsup$drf |> 
   pivot_wider(names_from = lsup_constru, values_from = yhat) |> 
@@ -106,6 +109,7 @@ saveRDS(grupos.info, file = "data/grupos_infos.rds")
 library(tidyverse)
 pr <- data.frame( alps = c(.5, .6, .5), k = c(4,4,5) )
 grupos.info <- readRDS("data/grupos_infos.rds")
+#grupos.info <-readRDS("../SpICE_COST/data/grupos_infos.rds")
 
 # agregamos columnas con grupos en df y curvas ice
 df <- df |> 
