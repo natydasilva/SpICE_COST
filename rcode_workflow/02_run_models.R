@@ -7,8 +7,8 @@ dts <- readRDS('data/mds_datos.rds')
 train <- as.h2o(dts$train)
 test <- as.h2o(dts$test)
 preds <-  c('lsup_constru', "ldistancia_playa", 
-            "condicion","dormitorios",
-            "banos","garage","ascensores","expensas", 'ammenities',
+            "condicion", "dormitorios",
+            "banos", "garage", "ascensores", "expensas", 'ammenities',
             "barrio_agrup" )
 
 # AML models
@@ -18,17 +18,16 @@ aml.prm2<- h2o.automl(y = "lpreciom2", x = preds,
 
 # Create the explanation for whole H2OAutoML object
 perf.prm2 <- h2o.performance(aml.prm2@leader, newdata = test, xval=TRUE)
-#explica.prm2 <- h2o.explain(aml.prm2, test)
 
-saveRDS(list(mds=aml.prm2, perf=perf.prm2), file='data/aml_results.rds')
+saveRDS(list(mds = aml.prm2, perf = perf.prm2), file = 'data/aml_results.rds')
 
 # individual models 
 algos <- c("deeplearning", "drf", "glm", "stackedensemble", "xgboost")
-ind.models <- vector(mode='list', length=length(algos))
+ind.models <- vector(mode = 'list', length=length(algos))
 
 for (i in 1:length(algos) ) {
-  mm <- h2o.get_best_model(aml.prm2, algo=algos[i])
-  ind.models[[i]] <- h2o.saveModel(mm,  path= paste0('data/ind_', algos[i] ), force = TRUE  )
+  mm <- h2o.get_best_model(aml.prm2, algo = algos[i])
+  ind.models[[i]] <- h2o.saveModel(mm,  path = paste0('data/ind_', algos[i] ), force = TRUE  )
 }
 
 saveRDS(ind.models, 'data/h2o_individual.rds')
