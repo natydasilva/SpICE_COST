@@ -7,7 +7,7 @@ library(patchwork)
 library(KernSmooth)
 library(ClustGeo)
 library(sf)
-ffpath <- 'articulo_revision/figures/'
+ffpath <- 'paper/figures/'
 
 # 1 load datasets ------------------
 dt.ll <-readRDS("data/mds_datos.rds")
