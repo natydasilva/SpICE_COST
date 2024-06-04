@@ -20,7 +20,7 @@ names(ind.mods) <- c("deeplearning", "drf", "glm", "stackedensemble", "xgboost")
 
 # Model performance in test data
 # performance de modelo en CV y testing
-mape_fun <- function(ypred, ytrue) 100*mean( abs(ypred-ytrue)/ytrue) 
+mape_fun <- function(ypred, ytrue) 100*mean( abs(ypred - ytrue)/ytrue) 
 # h2o.performance(ind.mods$drf, newdata = test)
 
 perf_fn <- function(mm) {
@@ -96,7 +96,7 @@ jjs <- c(3,4,10)
 
 ll <- vector(mode = 'list', length = length(jjs))
 for (i in 1:length(jjs)) {
-  ll[[i]] <- lapply(ind.mods, aleplot_fn, j=jjs[i]) %>% bind_rows(.id = 'modelo')
+  ll[[i]] <- lapply(ind.mods, aleplot_fn, j = jjs[i]) %>% bind_rows(.id = 'modelo')
 }
 names(ll) <- colnames(test)[jjs]
 aleinfo <- bind_rows(ll, .id = 'variable')
@@ -104,12 +104,12 @@ aleinfo <- bind_rows(ll, .id = 'variable')
 
 ll <- vector(mode = 'list', length = length(jjs))
 for (i in 1:length(jjs)) {
-  ll[[i]] <- lapply(ind.mods, pdpplot_fn, j=jjs[i]) %>% bind_rows(.id = 'modelo')
+  ll[[i]] <- lapply(ind.mods, pdpplot_fn, j = jjs[i]) %>% bind_rows(.id = 'modelo')
 }
 names(ll) <- colnames(test)[jjs]
 pdpinfo <- bind_rows(ll, .id = 'variable')
 
-saveRDS( list(pdp=pdpinfo, ale=aleinfo), "data/alepdp_info.rds")
+saveRDS( list(pdp = pdpinfo, ale = aleinfo), "data/alepdp_info.rds")
 
 
 # Figure: lsup profile effect with ALE and PDP
@@ -152,7 +152,7 @@ for (i in 1:5) {
   
   ice.lsup[[i]] <- pdp::partial(object = ind.mods[[m]], pred.var= 'lsup_constru',
                                 train = as.data.frame(test),
-                                grid.resolution = 30, pred.fun=yhat_fn, ice = TRUE)
+                                grid.resolution = 30, pred.fun = yhat_fn, ice = TRUE)
   
 }
 names(ice.lsup) <- names(ind.mods)
@@ -164,7 +164,7 @@ test <- dts$test
 
 zz <- test |> as.data.frame() |>
   mutate(yhat.id = 1:nrow(test), 
-         estrato = cut(lpreciom2, quantile(lpreciom2, probs=seq(0,1, .1) ), include.lowest=TRUE ) 
+         estrato = cut(lpreciom2, quantile(lpreciom2, probs = seq(0,1, .1) ), include.lowest = TRUE ) 
   ) |> 
   select( yhat.id, estrato, lpreciom2 ) |> 
   group_by(estrato) |> 
@@ -172,9 +172,9 @@ zz <- test |> as.data.frame() |>
 
 ice.lsup |> bind_rows(.id = 'modelo') |>
   filter(modelo != 'glm', yhat.id %in% zz$yhat.id) |> 
-  ggplot(aes(x=lsup_constru, y=yhat, group=yhat.id) ) +
-  geom_line( alpha=1/100 , color = 'steelblue') + 
-  labs(x='Apartment area (in log)', y='Expected price (in log)') +
+  ggplot(aes(x = lsup_constru, y = yhat, group = yhat.id) ) +
+  geom_line( alpha = 1/100 , color = 'steelblue') + 
+  labs(x='Apartment area (in log)', y = 'Expected price (in log)') +
   facet_wrap( ~modelo) + 
   theme_bw()
 
@@ -182,7 +182,7 @@ ggsave(file=paste0(ffpath,'fig-ice-sup-dec.pdf'), height = 7, width = 7)
 
 ice.lsup$drf |> 
   filter( yhat.id %in% zz$yhat.id) |> 
-  ggplot(aes(x=lsup_constru, y=yhat, group=yhat.id) ) +
+  ggplot(aes(x = lsup_constru, y = yhat, group = yhat.id) ) +
   geom_line( alpha=1/50 , color = 'steelblue') +  
   labs(x='Apartment area (in log)', y='Expected price (in log)') +
   theme_bw() + 
@@ -198,20 +198,17 @@ ggsave(file=paste0(ffpath,'fig-ice-sup-decRF.pdf'), height = 7, width = 7)
 # plot 3 ICE curves to ilustrated method
 
 ice.lsup$drf |> 
-  #filter( yhat.id %in% zz ) |> 
-  filter( yhat.id %in% c(8204,5283,19632) ) |> 
-  ggplot(aes(x=lsup_constru, y=yhat) ) +
-  #geom_line(aes(group=yhat.id, color = as.factor(yhat.id))) +  
+  filter( yhat.id %in% c(8204, 5283, 19632) ) |> 
+  ggplot(aes(x = lsup_constru, y = yhat) ) +
   geom_line(aes(group=yhat.id, linetype=as.factor(yhat.id)) ) +  
-  #  geom_point(data = yy, aes(lsup_constru, lpreciom2)) + 
-  labs(x='Apartment area (in log)', y='Expected price (in log)') +
+  labs(x = 'Apartment area (in log)', y = 'Expected price (in log)') +
   theme_bw() + 
-  scale_linetype_manual(values = c(3,1,2)) + 
+  scale_linetype_manual(values = c(3, 1, 2)) + 
   theme(axis.title.y = element_text(size = I(15)), 
         axis.title.x = element_text(size = I(15)), 
         legend.position = 'none')
 
-ggsave(file=paste0(ffpath, 'fig-3ice-exmp.pdf'), height = 7, width = 7)  
+ggsave(file = paste0(ffpath, 'fig-3ice-exmp.pdf'), height = 7, width = 7)  
 
 
 h2o.shutdown(FALSE)

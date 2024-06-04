@@ -14,7 +14,7 @@ parasumar <- c("ascensores", "garage", "salon_comunal" ,
                ,"sala_reuniones" ,"chimenea"       ,"asc_serv"       ,"amoblado"       ,"roof_garden"    ,"tenis"          ,"baulera"        ,"spa"         
                ,"guarderia" ) |> unique()
 
-sumaSI <- function(x) sum(x== 'Si', na.rm = TRUE)
+sumaSI <- function(x) sum(x == 'Si', na.rm = TRUE)
 
 meli_modelo$ammenities <- 
   apply(meli_modelo[,parasumar], 1, sumaSI) + (meli_modelo$cocheras != 0) +  
@@ -36,19 +36,19 @@ ind <- sample(1:nrow(df), size = floor(nrow(df)*.7))
 train <- df[ind,  ]
 test  <- df[-ind, ]
 
-saveRDS(list(df= df, train= train, test= test ), file='data/mds_datos.rds')
+saveRDS(list(df = df, train = train, test = test ), file = 'data/mds_datos.rds')
 
 # 2 map figure with prices  ----------------------------------------------------
 library(leaflet)
 library(mapview) # for saving png file
 
 df$preciom2 <- df$lpreciom2 |> exp()
-qpal2 <-colorNumeric("RdBu", domain =  df$preciom2,reverse = TRUE )
+qpal2 <-colorNumeric("RdBu", domain =  df$preciom2, reverse = TRUE )
 
 mm <- leaflet(df, options = leafletOptions(zoomControl = TRUE, minZoom = 11.5, maxZoom = 14)) %>% 
   addTiles() %>% 
-  addCircleMarkers(radius =1, color=~qpal2(df$preciom2)) %>% 
-  addLegend("topright", title="Sqm Price (USD)", pal = qpal2, values = ~preciom2) 
+  addCircleMarkers(radius = 1, color = ~qpal2(df$preciom2)) %>% 
+  addLegend("topright", title = "Sqm Price (USD)", pal = qpal2, values = ~preciom2) 
 
-Sys.setenv(OPENSSL_CONF="/dev/null")
+Sys.setenv(OPENSSL_CONF = "/dev/null")
 mapshot(mm, file = paste0(ffpath, 'mapa_preciom2.png'))

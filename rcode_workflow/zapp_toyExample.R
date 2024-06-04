@@ -32,8 +32,7 @@ library(ggplot2)
 ggplot(basef) +
   geom_line(aes(x = x2, y = value, color = variable))+theme_bw()
 
-# sum( abs(ices[,1]-ices[,2])^2 )
-# sum( abs(ices[,3]-ices[,2])^2 )
+
 
 library(tidyverse)
 zz <- ices |> 

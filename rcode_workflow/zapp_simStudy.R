@@ -3,7 +3,7 @@ library(RColorBrewer)
 library(KernSmooth)
 library(cluster)
 
-# recreate part of Hichcock (2007), clustering studuy
+# Recreate part of Hichcock (2007), clustering study
 
 # 1) Functions  ---------------
 # 4 mean functions, t in [0, 5]
@@ -18,17 +18,16 @@ data_fn <- function(N=40, n=50, GG, bb = diff(GG)[1]) {
   # true mean functions
   mu.data <- rbind(mu1 = mu1_fn(GG), mu2 = mu2_fn(GG), mu3 = mu3_fn(GG), mu4 = mu4_fn(GG) )
   
-  # obsserved data
-  obs.data = matrix(NA, nrow=N, ncol = n)
+  # observed data
+  obs.data = matrix(NA, nrow = N, ncol = n)
   rr <- rep(1:4, each=10)
   for (i in 1:N) {
-    # obs.data[i, ] <- mu.data[ rr[i], ] + rnorm(n)
-    obs.data[i, ] <- mu.data[ rr[i], ] + rnorm(1, sd=.5) + rnorm(n, sd = .1)
+    obs.data[i, ] <- mu.data[ rr[i], ] + rnorm(1, sd = .5) + rnorm(n, sd = .1)
   }
   
   # smoothed data
   sms.data <- apply(obs.data, 1,  FUN=function(crv) {
-    ll <- locpoly(x=GG, y=crv, gridsize = length(GG), bandwidth =  bb)
+    ll <- locpoly(x = GG, y = crv, gridsize = length(GG), bandwidth =  bb)
     ll$y |> as_tibble() |> t()
   }, simplify = FALSE ) |> 
     do.call(rbind, args=_)
@@ -38,7 +37,7 @@ data_fn <- function(N=40, n=50, GG, bb = diff(GG)[1]) {
 
 # function to compute derivatives 
 deriva_fn <- function(DD, GG, bb = diff(GG)[1]) {
-  apply(DD, 1, FUN=function(crv) {
+  apply(DD, 1, FUN = function(crv) {
     ll <- locpoly(x=GG, y=crv, gridsize = length(GG), bandwidth = bb, drv=1)
     ll$y |> as_tibble() |> t()
   } , simplify = FALSE ) |> 
@@ -48,14 +47,14 @@ deriva_fn <- function(DD, GG, bb = diff(GG)[1]) {
 # function to compute prop of correctly pairs matching
 valclus_fn <- function(DS, gr) {
   
-  gr.hat <- pam(DS, k=4, cluster.only=TRUE)
+  gr.hat <- pam(DS, k = 4, cluster.only = TRUE)
   
   # Pairs in same cluster
   true.pairs <- outer(gr, gr, FUN="-") == 0
   tp <- true.pairs[lower.tri(true.pairs)] 
   
   # Pairs clasified in same cluster
-  class.pairs <- outer(gr.hat, gr.hat, FUN="-") == 0
+  class.pairs <- outer(gr.hat, gr.hat, FUN = "-") == 0
   cp <- class.pairs[lower.tri(class.pairs)]
   
   sum(cp[tp==1])/sum(tp)
@@ -79,9 +78,9 @@ set.seed(888)
 
 res <- vector(length = R, mode = 'list')
 for (r in 1:R) {
-  dts <- data_fn(GG=grilla, bb = b)
-  obs.drv <- deriva_fn(DD=dts$obs, GG=grilla)
-  sms.drv <- deriva_fn(DD=dts$sms, GG=grilla, bb = b)
+  dts <- data_fn(GG = grilla, bb = b)
+  obs.drv <- deriva_fn(DD = dts$obs, GG = grilla)
+  sms.drv <- deriva_fn(DD = dts$sms, GG = grilla, bb = b)
   
   d1 <- dist(dts$sms)
   d2 <- sqrt( dist(dts$sms)^2 + dist(sms.drv)^2 )
@@ -89,15 +88,13 @@ for (r in 1:R) {
   
   res[[r]] <- c(
     rep = r, 
-    # obs.L2 = dist(dts$obs) |> valclus_fn(gr = dts$grs),
     L2 = dist(dts$sms) |> valclus_fn(gr = dts$grs),
-    # obs.Sob = sqrt( dist(dts$obs)^2 + dist(obs.drv)^2 ) |> valclus_fn(gr = dts$grs), 
     Sob = sqrt( dist(dts$sms)^2 + dist(sms.drv)^2 ) |> valclus_fn(gr = dts$grs)
   )
 }
 
 # Get results and save
-dts <- data_fn(GG=grilla, bb = b)
+dts <- data_fn(GG = grilla, bb = b)
 dts$res <- bind_rows(res) 
 saveRDS(dts, 'data/simstudySobolev.rds')
 
@@ -118,12 +115,11 @@ my.labs <- list(bquote(mu[1]),bquote(mu[2]),bquote(mu[3]), bquote(mu[4]))
 
 # true functions figure
 ggplot() + xlim(0, 5) +
-  geom_function(fun=mu1_fn, aes(color = names(colores)[1]) ) +
-  geom_function(fun=mu2_fn, aes(color = names(colores)[2]) ) +
-  geom_function(fun=mu3_fn, aes(color = names(colores)[3]) )+
-  geom_function(fun=mu4_fn, aes(color = names(colores)[4]) ) +
+  geom_function(fun = mu1_fn, aes(color = names(colores)[1]) ) +
+  geom_function(fun = mu2_fn, aes(color = names(colores)[2]) ) +
+  geom_function(fun = mu3_fn, aes(color = names(colores)[3]) )+
+  geom_function(fun = mu4_fn, aes(color = names(colores)[4]) ) +
   scale_color_brewer(palette = 'Dark2', name='', labels=my.labs) +
-  #scale_color_manual(values = colores, name='', labels=my.labs) +
   theme_bw() + theme(aspect.ratio = 1/2)
 
 ggsave( filename = 'paper/figures/fig-simstudy1.pdf', height = 7, width = 7)
@@ -134,17 +130,15 @@ grilla <- seq(0, 5, length.out = 50)
 
 dts$obs |>
   as_tibble() |>
-  mutate(id = 1:40, gr=dts$grs) |>
+  mutate(id = 1:40, gr = dts$grs) |>
   pivot_longer( cols = starts_with('V')  ) |>
   mutate(pp = as.numeric( gsub('V','', name) ) ) |>
   arrange(id, pp) |>
   mutate( grilla = rep(grilla, 40) ) |>
-  mutate( grF = factor( gr, labels=names(colores) ) ) |>
+  mutate( grF = factor( gr, labels = names(colores) ) ) |>
   ggplot() +
-  geom_line( aes(x=grilla, y=value, color=grF, group=id)) +
-  #scale_color_manual(values = colores, name='') +
-  scale_color_brewer(palette = "Dark2", name='') +
-  #facet_wrap(~gr) +
+  geom_line( aes(x = grilla, y = value, color = grF, group = id)) +
+  scale_color_brewer(palette = "Dark2", name = '') +
   theme_bw() + theme(aspect.ratio = 1/2)
 
 ggsave( filename = 'paper/figures/fig-simstudy2.pdf', height = 7, width = 7)
@@ -160,7 +154,7 @@ dts$res |>
   data.frame() |> 
   select( -c(vars,n,se) ) |> 
   xtable(digits = 2, caption = 'Summary of results', label = 'sim-results') |> 
-  print(file='paper/figures/tab-simstudy-res.tex',  caption.placement = 'top')
+  print(file = 'paper/figures/tab-simstudy-res.tex',  caption.placement = 'top')
 
 
-#=============================================================
+
