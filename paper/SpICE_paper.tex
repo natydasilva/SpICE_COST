@@ -50,89 +50,92 @@
 
 \usepackage{alltt}  
 \smartqed  % flush right qed marks, e.g. at end of proof
+
 \usepackage{graphicx}
-\usepackage{array,multirow,graphicx}
-\parskip 2mm           
+%\usepackage{array,multirow,graphicx}
 \usepackage{amsmath}
-\usepackage{graphicx}
 \usepackage{natbib}
-\usepackage{dsfont}
-\usepackage{url} % not crucial - just used below for the URL 
-\usepackage{multirow}
+\usepackage{xcolor}
+%\usepackage{url} % not crucial - just used below for the URL 
+%\usepackage{multirow}
 \usepackage{mathtools}
 \usepackage{amsfonts}
-\usepackage{rotating}
-\usepackage{booktabs}
-\usepackage{verbatim}
-\usepackage{mathrsfs}
+%\usepackage{rotating}
+%\usepackage{booktabs}
+%\usepackage{verbatim}
+%\usepackage{mathrsfs}
 \usepackage{hyperref}
 \usepackage{pdflscape}
-\usepackage{caption}
-\usepackage{tablefootnote}
+%\usepackage{caption}
+%\usepackage{tablefootnote}
 \usepackage{verbatim}
 \usepackage{setspace}
 \usepackage[utf8]{inputenc}
-\usepackage{authblk}
-\usepackage{pdfpages}
-\usepackage{fancyhdr}
+%\usepackage{authblk}
+%\usepackage{pdfpages}
+%\usepackage{fancyhdr}
+\usepackage{bbm}
 
-\newcommand{\blind}{0}
+\newcommand{\1}[1]{\mathbbm{1}_{#1}} 
 
-\newcommand{\blA}{\mbox{\boldmath {\bf A}}}
-\newcommand{\blB}{\mbox{\boldmath {\bf B}}}
-\newcommand{\blW}{\mbox{\boldmath {\bf W}}}
-\newcommand{\blX}{\mbox{\boldmath {\bf X}}}
-\newcommand{\blM}{\mbox{\boldmath {\bf M}}}
-\newcommand{\blx}{\mbox{\boldmath {\bf x}}}
-\newcommand{\bla}{\mbox{\boldmath {\bf a}}}
-\newcommand{\blalpha}{\mbox{\boldmath {\alpha}}}
+% \parskip 2mm           
+% \newcommand{\blind}{0}
+% \newcommand{\blA}{\mbox{\boldmath {\bf A}}}
+% \newcommand{\blB}{\mbox{\boldmath {\bf B}}}
+% \newcommand{\blW}{\mbox{\boldmath {\bf W}}}
+% \newcommand{\blX}{\mbox{\boldmath {\bf X}}}
+% \newcommand{\blM}{\mbox{\boldmath {\bf M}}}
+% \newcommand{\blx}{\mbox{\boldmath {\bf x}}}
+% \newcommand{\bla}{\mbox{\boldmath {\bf a}}}
+% \newcommand{\blalpha}{\mbox{\boldmath {\alpha}}}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
-  
+
 \title{SpICE: An interpretable method for spatial data} 
-  
+
 \author{Natalia da Silva \and Ignacio Alvarez-Castro\and
-    Leonardo Moreno\and
-    Andrés Sosa}
-  
-  %\authorrunning{Short form of author list} % if too long for running head
-  
+        Leonardo Moreno\and
+        Andrés Sosa}
+
+%\authorrunning{Short form of author list} % if too long for running head
+
 \institute{Corresponding author: Natalia da Silva \at
-    Instituto de Estadística (IESTA), Universidad de la República, Montevideo, Uruguay.\\
-    \email{natalia.dasilva@fcea.edu.uy}\\
-    ORCID:0000-0002-6031-7451\\
-    \and
-    Ignacio Alvarez-Castro \at 
-    Instituto de Estadística (IESTA), Universidad de la República, Montevideo, Uruguay.\\
-    \email{ignacio.alvarez@fcea.edu.uy}\\
-    ORCID:0000-0003-1633-2432\\
-    \and
-    Leonardo Moreno \at
-    Instituto de Estadística (IESTA), Universidad de la República, Montevideo, Uruguay.\\
-    \email{leonardo.moreno@fcea.edu.uy}\\
-    ORCID:0000-0003-1630-1361\\
-    \and
-    Andrés Sosa \at
-    Instituto de Estadística (IESTA), Universidad de la República, Montevideo, Uruguay.\\
-    \email{andres.sosa@fcea.edu.uy}\\
-    ORCID:0000-0002-6007-4373\\
-  }
-  
+              Instituto de Estadística (IESTA), Universidad de la República, Montevideo, Uruguay.\\
+              \email{natalia.dasilva@fcea.edu.uy}\\
+              ORCID:0000-0002-6031-7451\\
+           \and
+          Ignacio Alvarez-Castro \at 
+          Instituto de Estadística (IESTA), Universidad de la República, Montevideo, Uruguay.\\
+          \email{ignacio.alvarez@fcea.edu.uy}\\
+          ORCID:0000-0003-1633-2432\\
+       \and
+          Leonardo Moreno \at
+          Instituto de Estadística (IESTA), Universidad de la República, Montevideo, Uruguay.\\
+          \email{leonardo.moreno@fcea.edu.uy}\\
+          ORCID:0000-0003-1630-1361\\
+             \and
+             Andrés Sosa \at
+          Instituto de Estadística (IESTA), Universidad de la República, Montevideo, Uruguay.\\
+          \email{andres.sosa@fcea.edu.uy}\\
+          ORCID:0000-0002-6007-4373\\
+}
+
+
 \date{Received:  / Accepted: }
-  
+
 \maketitle
-  
+
 \begin{abstract}
-  Statistical learning methods are widely utilised in tackling complex problems due to their flexibility, good predictive performance and ability to capture complex relationships among variables. Additionally, recently developed automatic workflows have provided a standardised approach for implementing statistical learning methods across various applications. However, these tools highlight one of the main drawbacks of statistical learning: the lack of interpretability of the results.
-  In the past few years, a large amount of research has been focused on methods for interpreting black box models.  Having interpretable statistical learning methods is necessary for obtaining a deeper understanding of these models. Specifically in problems in which spatial information is relevant, combining interpretable methods with spatial data can help to provide a better understanding of the problem and an improved interpretation of the results. 
-  
-  This paper is focused on the individual conditional expectation plot (ICE-plot), a model-agnostic method for interpreting statistical learning models and combining them with spatial information. An ICE-plot extension is proposed in which spatial information is used as a restriction to define spatial ICE (SpICE) curves. Spatial ICE curves are estimated using real data in the context of an economic problem concerning property valuation in Montevideo, Uruguay. Understanding the key factors that influence property valuation is essential for decision-making, and spatial data play a relevant role in this regard. 
-  
+Statistical learning methods are widely utilised in tackling complex problems due to their flexibility, good predictive performance and ability to capture complex relationships among variables. Additionally, recently developed automatic workflows have provided a standardised approach for implementing statistical learning methods across various applications. However, these tools highlight one of the main drawbacks of statistical learning: the lack of interpretability of the results.
+In the past few years, a large amount of research has been focused on methods for interpreting black box models.  Having interpretable statistical learning methods is necessary for obtaining a deeper understanding of these models. Specifically in problems in which spatial information is relevant, combining interpretable methods with spatial data can help to provide a better understanding of the problem and an improved interpretation of the results. 
+
+This paper is focused on the individual conditional expectation plot (ICE-plot), a model-agnostic method for interpreting statistical learning models and combining them with spatial information. An ICE-plot extension is proposed in which spatial information is used as a restriction to define spatial ICE (SpICE) curves. Spatial ICE curves are estimated using real data in the context of an economic problem concerning property valuation in Montevideo, Uruguay. Understanding the key factors that influence property valuation is essential for decision-making, and spatial data play a relevant role in this regard. 
+
 \keywords{Interpretable method \and spatial data \and statistical learning \and real estate }
 \end{abstract}
-  
+
 \newpage
-  
+
 \section{Introduction \label{intro}}
 
 Statistical learning methods have been used successfully in many fields and for different kinds of complex research problems. Some of the reasons for the extensive use of statistical learning methods are their flexibility, good predictive performance and ability to capture complex relationships among variables. In recent years, several computational tools to automate the workflow of the implementation of statistical learning models have been proposed, such as \texttt{caret} \citep{caret}, \texttt{h2o} \citep{h2o} and \texttt{tidymodels} \citep{tidymodels}, among others. These tools make it possible to train and tune many different algorithms, and the best one can be chosen based on a selected performance measure in a standardised way, reducing some common implementation errors. At the same time, models generated by the automatic workflow typically exhibit very good predictive performance; however, explaining the model’s decisions remains challenging.
@@ -353,9 +356,11 @@ This article was written with the R packages \texttt{knitr} \citep{knitr}, \text
 
 
 
-\renewcommand{\refname}{References }
-\bibliographystyle{chicago}
+% \renewcommand{\refname}{References }
+\bibliographystyle{apa}
 \bibliography{bibcsic.bib}
+
+
 
 
 \appendix
@@ -364,9 +369,8 @@ This article was written with the R packages \texttt{knitr} \citep{knitr}, \text
 This section presents a model example in which the L2 distance is not a good choice for finding dissimilarities among ICE curves. Let us assume the regression model 
 \[\begin{array}{cl}
   Y_i   &  = f(X_{1,i}, X_{2,i}) + \epsilon_i  \\
-     & = -C(1-X_{1,i})X_{1,i} + \frac{1}{2}X_{2,i}(2- X_{1,i}-X^2_{1,i}) +X_{2,i}^{1+X_{1,i} \mathds{1}{ \{X_{1,i}\geq 0\} } }  + \epsilon_i,
+     & = -C(1-X_{1,i})X_{1,i} + \frac{1}{2}X_{2,i}(2- X_{1,i}-X^2_{1,i}) +X_{2,i}^{1+X_{1,i} \1{ \{X_{1,i}\geq 0\} } }  + \epsilon_i,
 \end{array}\]
-
 where $X_1 \sim U(-1,1)$, $X_2\sim U(0,2)$ and $\epsilon_i$ represents white noise with a standard deviation $\sigma>0$. When the true $f()$ function is known, the ICE curves at three chosen points are $f(-1,x2)= 2C+2x_2$, $f(0,x2)=2x_2$ and $f(1,x2)=x_2^2$. If $C= -\sqrt{ \frac{\int_0^2(x^2-2x)^2 dx}{8}}$, then 
 $$d_2\left( f(-1,\cdot), f(0,\cdot)\right)= d_2\left( f(1,\cdot), f(0,\cdot)\right).$$
 
@@ -428,242 +432,4 @@ Table \ref{sim-results} presents results from the 500 replications. Using the So
 \end{figure}
 
 
-\end{document}
-
-
-% \section{ICE curves in spatial problems} \label{section:2}
-% Consider a supervised problem where the objective of statistical learning models is to approximate 
-% \[
-% \mathbb{E}(Y|X=x) = f(x) \approx \hat f(x);
-% \]
-% where $X=(X_1,X_2,\dots, X_q)$ is a vector of $q$-variables, $Y$ is the response variable and $\hat f$ is the fitted model that predicts the scalar $Y$ as a function of $X$. In this context, a goal of interpretable methods is to characterize the dependence of the ``main effects'' on $f(x)$ in each explanatory variable. It is also possible to analyze the ``low order'' dependence between pairs of variables. 
-% 
-% Lets assume the main goal is to understand the effect of a set of explanatory variables denoted as $X_S$ on the response variable in a model agnostic way ($S \in \{1,2,\dots,q\}$ and denote the subset $C$ as the complement of $S$). One of the earliest methods for this is partial dependence plot \citep{friedman2001}. The PD-plot describes the change of the response variable in a model as a function of the marginal effect of one or more variables (subset $X_S$) when averaging the effects of the other explanatory variables (complement subset $X_C$). 
-% 
-% Main advantages of PD-plot is that its estimation is very intuitive and presents a causal interpretation in the results of any learning model. The main drawbacks are that hide heterogeneous effects, it might be rely on unrealistic set of observations and is computationally expensive. Alternatives to PD-plot has being proposed to overcome its problems, such as accumulated local effects (ALE-plot) \citep{apley2020visualizing} and the individual conditional expectation (ICE-plot) \citep{goldstein2015peeking}.
-% 
-% \subsection{Individual conditional expectation (ICE-plot)} \label{sub:ICE}
-% 
-% The ICE-plot is proposed as an extension of PD-plot, to visualize the dependence of the prediction on a feature for each sample separately, with one curve per observation. The method attempts to capture the dependency of the response variable on a set of variables, allowing heterogeneous effects.
-% 
-% For each observation, the curve $\hat f_{S,ICE}^{(i)}(x_S)$ is obtained by varying $x_S$ in the function $\hat f(x_S,x_C^{(i)})$ while the variables $x_C^{(i)}$ remain constant. That is to say
-% \[
-%  \hat f_{S,ICE}^{(i)}(x_S)= \hat f(x_S, x_C^{(i)}). 
-% \]
-% 
-% It is worth noting that averaging the ICE curves corresponds the definition of the PD-plot
-% \[
-% \hat f_{S,PD}(x_S) = \frac{1}{N}\sum_{i = 1}^ N \hat f(x_s, x_C^{(i)});
-% \]
-% then is possible to interpret the ICE curves similarly as the classic PD-plot but allowing to pick interactions when visualizing the $N$ plots (something that vanish when all ICE are averaged into one curve).
-% 
-% One disadvantage of ICE plots is the overplotting when big data set are involved. In such cases, it can be challenging to discern any meaningful information due to the overlapping of data points. This is specially relevant for ICE curves since its main purpose is to look for heterogeneity patterns in the predictor effect. Usual graphical solutions such as transparency or 2-dimensional histograms are not suited for plotting lines.  Specifically for ICE-curves, \texttt{h2o} implementation (\cite{hall2017}) choose ICE-curves for decile values (in the observed response), so no matter how large is the sample data, only ten ICE curves are displayed, resulting in an oversimplified plot. An alternative is to plot a stratified sample of curves. This method can be combined with line transparency to allow to reduce the overplotting while is possible to see different patterns of ICE curves in the data. An application of this plot can be found in Figure \ref{fig-icesup} in  Section \ref{section:4}. 
-% 
-% 
-% \subsection{ Spatial ICE curves (SpICE)} 
-% \label{seccD}
-% Spatial data is any type of data which references a specific geographical area or location. Each curve in the ICE-plot is associated with a specific observation, so it can be link to a geographical location in spatial applications. Combining ICE-plot and spatial structure of the data is possible to overcome some drawbacks of ICE curves and improve interpretability at the same time. 
-% In this paper,  SpICE  refers to clustering ICE curves with spatial contiguity constrains. 
-% 
-% 
-% The Ward-like method is used for the construction of the clusters, see \cite{chavent2018}. This is based on two dissimilarity matrices ($D_0$ and $D_1$) and a mixing parameter $\alpha \in [0,1]$. $D_0$ is a dissimilarity matrix between ICE curves and $D_1$ is a dissimilarity matrix that consider the spatial problem.
-% 
-% Matrix $D_0$ is determined only based on a dissimilarity measure between each ICE curve. The key idea is to group together observations with similar predictor effect on the response that could be summarize as the level and change range of the ICE curve. For this reasons it is appropriate to consider a distance  that not only considers the value of the integral but also their growth/decrease. However, some ICE curves might not be differentiable in some point for a lot of statistical learning models. One way to overcome this issue and obtain estimates in a $C^1$ space, is to consider the curve $\widetilde{f}_{S,ICE}^{(i)}(x_S)$ that is the convolution of the function  $\hat{f}(x_S, x_C^{(i)})$  with a Gaussian kernel. That is,  
-% \begin{equation}\label{convo}
-%  \widetilde{f}_{S,ICE}^{(i)}(x_S) := \ \hat{f}(x_S, x_C^{(i)}) \ast K_h(x_S),
-% \end{equation}
-% where $K_h$ is the Gaussian kernel, $h$ the smoothing parameter and $\ast$ the convolution operation.  For the function $\widetilde{f}_{S,ICE}^{(i)}(x_S)$ in the equation (\ref{convo}) it is possible to use the Sobolev $W^{1,2}(\mathbb{R})$ metric \citep{sobolev},  induced by the norm
-% \[
-% \Vert  \widetilde{f}_{S,ICE}^{(i)}(x_S)   \Vert= \sqrt {\int \vert  \widetilde{f}_{S,ICE}^{(i)}(x_S)  \vert ^2 dt + \int \vert  \widetilde{f}_{S,ICE}^{\ '(i)}(x_S) (t) \vert ^2 dt}.
-% \]
-% Assuming the true $f(x)$ is a smooth function, the above transformation of ICE curve (the convolution) will not distort the ICE estimator in a relevant way. 
-% 
-% For the definition of the distance $D_1$  is necessary use the spatial information associated with each observation. Depending on the quality and nature of the spatial data available (such as coordinates points, or area data, etc) this metric distance could be defined in different ways. In the motivating example of this paper %with the data described in Section \ref{section:3}, 
-% the Euclidean distance between coordinates observations is used for simplicity.   
-% 
-% Let us consider a partition $\mathcal{P}_K = (C_1 ,\ldots , C_K )$ in $K$ clusters of ICE curves. Clustering algorithm proposed in \cite{chavent2018} is outlined in order to described how to choose a value for mixing parameter. First, consider $n$ observations, where $w_i$ represents the weight associated with the $i$-th observation. Let $D_0=[d_{0,ij}]$ and $D_1=[d_{1,ij}]$ be two dissimilarity matrices of size $n \times n$, associated with the $n$ observations, corresponding to the covariates and spatial constraints, respectively. Both dissimilarities are normalized to make them comparable. The pseudo-inertia of a group is now also indexed by the mixing parameter $\alpha$, which weighs the importance of the two dissimilarities. The mixed pseudo-inertia of the $k$-th group is defined as
-% 
-% $$I_{\alpha} \left( C^{\alpha} _k \right)=  (1-\alpha) \sum_{i \in C^{\alpha}_k} \sum_{j \in C^{\alpha}_k} \frac{w_i w_j}{2 \mu^{\alpha}_k}d^2_{0,ij}+\alpha \sum_{i \in C^{\alpha}_k} \sum_{j \in C^{\alpha}_k} \frac{w_i w_j}{2 \mu^{\alpha}_k}d^2_{1,ij};$$
-% with $\mu^{\alpha}k= \sum{i \in C^{\alpha}_k} w_i$, and the inertia of the partition with $K$ groups is given by
-% $$W _{\alpha}\left( \mathcal{P}^{\alpha}_{K} \right)= \sum_{k=1}^K I_{\alpha} \left( C^{\alpha}_k \right).$$
-% Secondly, given a partition into $K+1$ groups, now the Ward type algorithm is applied to obtain a new partition into $K$ groups, which is a solution to the following optimization problem,
-% $$\textrm{arg}  \min\limits_{A,B \in \mathcal{P}_{K+1}^{\alpha}}\, I_{\alpha}\left( A \cup B\right) - I_{\alpha}\left( A \right) - 
-% I_{\alpha}\left(B \right) .$$
-% Finally, a criteria are developed for choosing the mixing parameter $\alpha$ is based on the notion of the proportion of total mixed pseudo-inertia explained by the partition $\mathcal{P}_K^{\alpha}$ into $K$ groups,
-% $$Q_{\beta}( \mathcal{P}_K^{\alpha})= 1- \frac{W_{\beta} \left( \mathcal{P}_{K}^{\alpha} \right)}{W_{\beta}\left( \mathcal{P}_{1} \right)} \in [0,1]\,; \:\: \text{ with } \beta \in [0,1] \,,$$
-% where $W_{\beta}\left( \mathcal{P}_{1}\right)$ represents the total pseudo-inertia based on the dissimilarity matrix $D_0$ if $\beta=0$, the total pseudo-inertia based on the dissimilarity matrix $D_1$ if $\beta=1$, and if $\beta \in (0,1)$ it is the total mixed pseudo-inertia
-% 
-% The parameter $\alpha$ regulates the two factor's weight  involved in the algorithm. On the one hand, when $\alpha=0$ the clusters are just determined by covariates without spatial information and on the other hand when $\alpha=1$ the clusters are just determined by the spatial information. Ideally is desirable to determine $\alpha$ value which increases cluster's spatial continuity without loosing cluster homogeneity in terms of ICE curves.
-% 
-% \section{Application results}
-% \label{section:3}
-% %In this Section data description, predictive models with `h2o` and SpICE curves results are presented.
-% This Section start by describing the dataset used as motivating example, then performance results of statistical learning models and interpretable methods are presented. Finally, the SpICE curves results in the motivating example data are presented. 
-% 
-% \subsection{ Dataset: Appartment prices in Montevideo }
-% The data in this paper are from an eCommerce platform \href{https://www.mercadolibre.com.uy)}{Mercado Libre} where real estate are offered for sale and rental. The complete data set contains asking price information for properties in Montevideo, capital city of Uruguay from February 2018 to January 2019 \citep{Picardo}. There are 92,832 observations and 116 variables in the complete data set. Nevertheless, only apartments data will be consider for the analysis working with 70,817 apartment observations for sale in Montevideo.
-% 
-%  Figure \ref{mapa} shows the distribution of asking prices for apartments in Montevideo. Each dot on the plot represents one apartment available for sale, while the color of the dot indicates the asking price per square meter in US dollars.
-% Figure \ref{mapa} suggest locations close to the coast are associated with higher price range. Apartment's asking price ranges from  541 to 5000 US-dollars per square meters in Montevideo and the median value is close to 2500 US-dollars. 
-%  \begin{figure}[hbpt]
-% \centering
-% \includegraphics[width=1\linewidth]{figures/mapa_preciom2.png}
-% \caption{Distribution of asking price apartments in Montevideo. Each dot represents one apartment and the color is the asking price per square meter in US dollars. 
-% \label{mapa} }
-% \end{figure}
-% 
-% \begin{table}[hbpt]
-% 	\centering
-% 	\caption{Variable description\label{tabvar} }
-% \scriptsize
-% \begin{tabular}{p{2.4cm}p{2.4cm}p{7cm}}
-% 		\hline \\[-1.8ex] 
-% \textbf{Variable} & \textbf{Role} &  	\textbf{Description} \\
-% 		\hline \\[-1.8ex] 	\hline \\[-1.8ex] 
-% 
-% \texttt{lpreciom2} & Response & Log of asking price in US-dollars per square meters. \\ \hline
-%   
-% \texttt{amenities} & Explanatory & Total number of amenities presented in the apartment.\\
-% \texttt{bedrooms} & Explanatory & Bedrooms quantity. Reduced to values between 0 (studio) and 3. \\
-% \texttt{bathroom} & Explanatory & Bathrooms quantity. Reduced to values between 1 and 3.\\
-% \texttt{elevators} & Explanatory & Elevators quantity. Reduced to values between 0 and 2. \\
-% \texttt{condition} & Explanatory & Property condition (new/used).  Properties with less than 1 year were marked as ``new''.\\
-% \texttt{expenses} & Explanatory &  Numerical value representing monthly expenses in Uruguayan pesos (local currency)\\
-% \texttt{garage} & Explanatory & Whether or not there is a garage. Reduced to values between 0 (``No'') and 1 (``Si'').\\ 
-% \texttt{ldistance\_beach} & Explanatory & Minimum distance (Euclidean)  between  the property   and the beach (in log scale). \\
-% \texttt{lsup\_constru} & Explanatory & Log of  area in square meters. Values over 2000  or under 9 square meter were remove from data. \\
-% \texttt{neighborhoodgr} & Explanatory &  Montevideo neighborhoods grouped by proximity in 12 regions. \\ \hline
-% \texttt{lat} & Spatial & Property latitude coordinate \\
-% \texttt{long} & Spatial & Property longitude coordinate \\
-% 	\hline \\[-1.8ex] 	\hline \\[-1.8ex]  
-% 	\end{tabular}
-% \end{table}
-% Table \ref{tabvar} presents the selected variables from the entire dataset to use for the statistical methods applied latter, indicating variable name in the dataset, its role in the statistical analysis and a brief description. All the models are fitted using as response variable the natural logarithm of the  price per square meters (\texttt{lprecio2}). The explanatory variables represent apartment features commonly used in real estate modeling, such as location (\texttt{neighborhoodgr}), total area, number of bedrooms and number of bathrooms. In addition, with the available information we create additional explanatory variables such as distance to the beach and total amenities. A reduced number of variables were selected to assure data quality from the complete data set. Finally, geographical coordinates of each property are used as additional information to improve interpretability using SpICE curves described earlier.
-% 
-% \subsection{Predictive models with \texttt{h2o} }
-% \label{modelo} 
-% 
-% Several models were trained %to estimate $f(x_i)$ 
-% using the automatic machine learning (\texttt{autoML}) procedure from \texttt{h2o} R package \citep{h2o} to predict the apartment  price as an alternative to classical methods. The  \texttt{autoML}  estimates models well tuned in 4 families: penalized linear models (glm), random forest (drf), xgboost, and Deep Learning. In the rest of the paper, the best model of each family and an additional metalearner are used. 
-% 
-% Table \ref{comparo} shows the  performance measures for the selected predictive models. The root mean square error (RMSE) and the $R^2$ are used to evaluate model performance. These values are computed with the response variable in logs (as it was used for trained every model). Additionally, mean absolute error (MAEo) and mean absolute percentage error (MAPEo) are both computed in the original scale of the response variable so can be read in dollars per square meter.  The four measures are computed using a testing data set different from training sample (2/3 training and 1/3 testing). 
-% 
-% \input{figures/table-performance}
-% 
-% In terms of predictive performance, stacked metalearner, Random Forest and the XGboost algorithms show similar performance, somewhat better than the deep learning method or the penalized linear model. It is worth to note the stacked model combines 7 tree based models in its construction. On average, the best model get an average error in the asking price of \$245 per square meter, around 10\% of the observed price.  %The variability explained by  every model is between $0.74$ and $0.90$. 
-% 
-% \subsection{ Variable importance measures}
-% \label{4.2} 
-% The first approach to interpreting model results for statistical learning methods is to compute variable importance measures. Importance variable measures are  widely used for this problem. Some variable importance  measures are model specific but other are model agnostic and can be computed for any model. Explanatory variables with bigger values in this measure indicate that are more important for the predictive model and have more impact on the response variable. However, the weakness of this method is that has no information about the effect direction or shape.
-% 
-% Variable importance measures were computed for each model. The measures were scaled so that the most important variable in each model has a value of 1, which simplifies the model comparison. 
-% Figure \ref{fig-imp} shows the results  by model for the variable importance. The predictors ordering are similar in all models.  The apartment area (\texttt{lsup\_constru}) and the neighborhood (\texttt{neighborhoodgr}) are the two most important variables to predict the apartment price. All the tree based methods (drf, xgboost and stackedemsemble) shows a third relevant variable which is the distance from the apartment to the beach (\texttt{ldistance\_beach}). The rest of the predictor variables are not relevant for prediction. 
-% 
-% \begin{figure}[htpb]
-%     \centering
-%     \includegraphics[trim=0cm 4cm 0cm 4cm, clip, scale=1]{figures/fig-importance.pdf}
-%     \caption{Variable Importance. Each panel represents a model, and the y-axis shows the variables included in all the models. Bar length represents the scaled variable importance measure to predict the apartment price.}
-%     \label{fig-imp}
-% \end{figure}
-% 
-% \subsection{ Partial effect of apartment area } \label{sub:resultados_pdp}
-% Variable importance measure gives a ranking  of variables according to their relevance to predict the response variable.  However, they do not provide information on the effect that the individual variables have on the response. In order to characterize the average effect of apartment features on its  price, the PD-plot and the ALE-plot  are estimated. The algorithms used for its estimation  were done using R packages \texttt{pdp} \citep{pdp} and \texttt{ALEPlot} \citep{aleplot}. 
-% %interpretable methods described in Section \ref{section:2} are computed. Computations of the PD-plot, ALE-plot and ICE curves are done using R packages \texttt{iml} \citep{iml} and \texttt{ALEPlot} \citep{aleplot}. 
-% \begin{figure}[hbpt]
-%     \centering
-%     \includegraphics[trim=0cm 6cm 0cm 6cm, clip, scale=1]{figures/fig-efecto-lsub.pdf}
-%     \caption{Effect of \texttt{lsup\_constru} variable in different models. Each panel corresponds to a predictive model and color represents the interpretable method (ALE-plot or PD-plot).}
-%     \label{fig-pdpalesup}
-% \end{figure}
-% 
-% Apartment area (\texttt{lsup\_constru}) is the most relevant feature in every model. The effect of this variable on the response is described with PD-plots and ALE-plots shown in Figure \ref{fig-pdpalesup} where each panel corresponds to a specific model. A negative effect is suggested by these plots with similar effect in every model. This is  true especially in the middle of the range for apartment area where there is most of the observed sample. Some differences can be seen in very large or very small apartments where random forest and XGboost show smaller effects on prices. %Estimated results for PD-plot and ALE-plot are very close. This might suggest the correlations among explanatory variables are not too high to bias the estimated effect with PD-plot and then the local correction made by ALE-plot has no effect. 
-% 
-% Specifically, Figure \ref{fig-pdpalesup} shows the average effects of the variable \texttt{lsup\_constru}  in the sample. In a scenario where the impact of an explanatory variable over the response presents heterogeneity among observations, PD-plot and ALE-plot methods hide the variability of effects. An alternative method for interpretability to tackle this issue is the ICE-plot. The value of visualizing the individual curves that compose the PD-plot, is to explore other patterns in the effects than just the mean value.  Figure \ref{fig-icesupRF} shows the individual conditional expectation plot for  apartment area (\texttt{lsup\_constru}) for the  random forest model. The other predictive models shows similar results, as can be seen in Figure \ref{fig-icesup} in the Appendix. As it mentioned in Section \ref{section:2} there are too many ICE curves to display, using only transparency it was not enough to produce a good plot. ICE curves of a random sample using observed response deciles as strata are shown. 
-% 
-% \begin{figure} 
-%     \centering
-%     \includegraphics[scale=0.5]{figures/fig-ice-sup-decRF.pdf}
-%     \caption{ICE-plot for \texttt{lsup\_constru} variable. Each panel corresponds to a predictive model. Showing 5000 randomly stratified selected curves.}
-%     \label{fig-icesupRF}
-% \end{figure}
-% 
-% The results illustrate the negative effect of the variable \texttt{lsup\_constru} in each individual curve. However, it is relevant to note that the effect  present  heterogeneity in the different properties. Figure \ref{fig-icesupRF} suggests that properties with higher predicted prices exhibit a small and linear effect, whereas cheaper properties show a non-linear relationship, with a larger impact of the apartment area.
-% 
-% \subsection{ SpICE curve effects } \label{results-ice}
-% Finally, to explore the connection among ICE curves and geographical location of properties, SpICE curves results are presented.  
-% 
-% In order to compute $D_1$ matrix (see Section \ref{seccD}), Euclidean distance between apartment coordinates is used. 
-% This metric is easy to visualize and applicable in the city of Montevideo due to the relatively close distances involved (maximum 30 km). However, it is possible to define other metrics using these two variables or other variables that better characterize the distance between two properties.
-% 
-% The range of the number of clusters is defined as three to five clusters. For each value within this range, an optimal value for the $\alpha$ parameter is determined as a compromise between the within-cluster homogeneity in terms of ICE curves and geographical proximity.
-% Results are shown in Figure \ref{alpfaoptimo} in the appendix, final choice is to work with four groups and $\alpha = 0.5$. 
-% 
-% Figure \ref{fig-spice} shows the results of the geographically constrained clusters. Each apartment for sale in Montevideo city is represented as a point on the map, which is connected to an ICE curve in the bottom panel. The colors of the points and curves indicate the corresponding cluster assignments. Cluster location suggest a layout in the NorthWest-SouthEast direction, similar to the price gradient present in the data (see Figure \ref{mapa}). The apartments in the west and north-west side (green cluster) corresponds low income neighborhoods while the East side of the city (red cluster) represents the highest income zone in Montevideo.  
-% 
-% Focusing on the SpICE curves presented in Figure \ref{fig-spice}, there are distinct patterns in the relationship between apartment area and the asking price per square meter. Across all clusters, there is a negative relationship between the price per square meter and the apartment area. However, the effect of apartment area on square meter price differs between the green and blue clusters (associated with medium and low-income neighborhoods) and the red and violet clusters (associated with high-income neighborhoods). In green and blue clusters, an increase in apartment area results in a larger decrease in price per square meter compared to the red and violet clusters. This suggests that, in high-income neighborhoods, the total apartment price is more sensitive to changes in apartment area than in low-income neighborhoods where the total apartment prices are more inelastic to changes in apartment area. Consequently, the additional square meter in the apartment has no impact on the apartment price, leading to a decline in the square meter price within the low and medium-income neighborhoods.
-% 
-% 
-% \begin{figure} 
-%     \centering
-%     %{figures/fig-4grupos.pdf}
-%     \includegraphics[scale=0.9]{figures/fig-4grupos-alpha5.pdf}
-%     \caption{SpICE curves and geographical location of clusters.}
-%     \label{fig-spice}
-% \end{figure}
-% 
-% % The properties maps show in the bottom left corner a few apartments located in a low income zone of the city, all points belong to the blue cluster but one which correspond to violet cluster. Figure \ref{fig-spice-zoom} shows SpICE curves for these apartments, as an example to illustrate the reason that geographically close point are classified into different groups. SpICE curve for the violet point show a linear negative effect of the total area, while blue curves of the close by apartments shows a highly non-linear effect of the apartment area. 
-% % \begin{figure} 
-% %     \centering
-% %     \includegraphics[scale=0.65]{figures/fig-casa-cerro.pdf}
-% %     \caption{An example of ICE curves away (blue and violet) from spatially close apartments.}
-% %     \label{fig-spice-zoom}
-% % \end{figure}
-% 
-% \newpage
-% 
-% \section{Discussion} \label{section:4}
-% In this paper, model-agnostic interpretable methods for black box models were combined with spatial information to enhance interpretability in spatial applications. Specifically, the paper introduces the concept of geographically constrained clusters of ICE curves, referred to as SpICE curves.
-% Similar to ICE plots, SpICE curves can reveal heterogeneous effects of a predictor variable in a black box model.
-% The advantage of SpICE curves lies in their ability to interpret multiple clusters simultaneously, making them more suitable for large-scale data applications. Additionally, the spatial contiguity of the clusters provides additional interpretable information, further improving the analysis.
-% 
-% 
-% In the motivating example, SpICE curves were utilized to analyze the impact of the total area of properties on the price per square meter in apartments located in Montevideo city. Five statistical learning methods were chosen from a subset of 25 fitted models, based on their predictive performance using the \texttt{h2o} package with \texttt{autoML} procedure. The apartment's total area emerged as the most relevant feature in all five models, confirming its importance.
-% 
-%  Then using a fitted model with Random Forest algorithm, ICE-plot and SpICE curves for each apartment were computed. Property spatial information is combined with ICE curves to gain interpretability. Four property clusters were selected, based on a distance that combines a functional distance between ICE curves and Euclidean distance between apartment geographical coordinates.  Clusters blue and green mainly represent properties located in low or mid-low income zones in Montevideo and these clusters present a large, negative, non-linear effect of the apartment area on the price per square meter. On the other hand, clusters violet and red mainly correspond to mid high and high income neigborhoods, showing a small,  close to linear effect of the property area. 
-% 
-% This paper suggests several aspects that could be explored in future work. Firstly, the improvement of the functional distance used among ICE curves could be considered, such as the utilization of a weighted functional distance, as proposed in \cite{chen2014optimally}.  Secondly, instead of constructing fixed clusters of ICE curves, an alternative approach could involve considering local averages of the ICE curves in a nearest neighbors fashion,  where the distance used to determine the neighbors combines the structure of the ICE curves with geographical distance. Finally, a potential enhancement could involve summarizing the cluster ICE curves using ALE-plots, rather than relying on the average of clustered ICE curves. 
-% 
-% \section{Supplementary materials}
-%  This article was written with the R packages \texttt{knitr} \citep{knitr}, \texttt{ggplot2} \citep{hadley:2016}, \texttt{leaflet} \citep{leaflet}, \texttt{tidyverse} \citep{tidyverse}, \texttt{h2o} \citep{h2o}, \texttt{ClustGeo} \citep{clustGeo},
-%  \texttt{KernSmooth} \citep{KernSmooth} and the files to reproduce the article and results is available at https://github.com/natydasilva/SpICE\_COST. 
-% 
-% \renewcommand{\refname}{References }
-% \pagebreak
-% \bibliographystyle{chicago}
-% \bibliography{bibcsic.bib}
-% 
-% 
-% \appendix
-% \section{Supplementary figures}
-% 
-% \begin{figure} 
-%     \centering
-%     \includegraphics[scale=0.65]{figures/fig-ice-sup-dec.pdf}
-%     \caption{ICE-plot for \textit{log apartment area} variable. Each panel corresponds to a predictive model. Showing 5000 randomly stratified selected curves.}
-%     \label{fig-icesup}
-% \end{figure}
-% 
-% \begin{figure} 
-%     \centering
-%     \includegraphics[scale=.6]{figures/fig-alphaoptimo.pdf}
-%     \caption{ Optimal $\alpha$ for different groups. }
-%     \label{alpfaoptimo}
-% \end{figure}
-% 
-
-\end{document}
-
-
-\bibliographystyle{apalike}
-\bibliography{bibcsic.bib}
 \end{document}
