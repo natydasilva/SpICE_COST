@@ -109,9 +109,12 @@ saveRDS(dts, 'data/simstudySobolev.rds')
 # mu3_fn <- function(t) { -.25 - .1*cos(.5*(t-1) )*t^(1.5) * sqrt(5*t^(.5) + .5) }
 # mu4_fn <- function(t) { .6*cos(t)*log(t + .5)*sqrt(t+.5) }
 
-colores <- palette.colors(n = 4, palette = "Okabe-Ito")
+colores <- palette.colors(n = 4, palette = "Dark2")
 names(colores) <- paste0("mu", 1:4)
 my.labs <- list(bquote(mu[1]),bquote(mu[2]),bquote(mu[3]), bquote(mu[4]))
+
+my.labs2 <- paste0('mu[', 1:4, ']')
+
 
 # true functions figure
 ggplot() + xlim(0, 5) +
@@ -119,6 +122,7 @@ ggplot() + xlim(0, 5) +
   geom_function(fun = mu2_fn, aes(color = names(colores)[2]) ) +
   geom_function(fun = mu3_fn, aes(color = names(colores)[3]) )+
   geom_function(fun = mu4_fn, aes(color = names(colores)[4]) ) +
+  labs(x = 'grid') + 
   scale_color_brewer(palette = 'Dark2', name='', labels=my.labs) +
   theme_bw() + theme(aspect.ratio = 1/2)
 
@@ -138,9 +142,14 @@ dts$obs |>
   mutate( grF = factor( gr, labels = names(colores) ) ) |>
   ggplot() +
   geom_line( aes(x = grilla, y = value, color = grF, group = id)) +
-  scale_color_brewer(palette = "Dark2", name = '') +
+  labs(x='grid', y = 'y' ) + 
+  #scale_color_brewer(palette = "Dark2", name = '') +
+  scale_color_discrete(type=colores,  
+                     labels = parse(text = my.labs2),
+                     name = '') +
   theme_bw() + theme(aspect.ratio = 1/2)
 
+  
 ggsave( filename = 'paper/figures/fig-simstudy2.pdf', height = 7, width = 7)
 
 library(xtable)
