@@ -1,6 +1,6 @@
 # SpICE: An interpretable method for spatial data
 
-This repo contains all the needed code and data to reproduce the paper SpICE: An interpretable method for spatial data sent to Computational Statistics Journal.
+This repo contains all the needed code and data to reproduce the paper SpICE: An interpretable method for spatial data under review in Computational Statistics Journal.
 
 
 ## Reproducible materials
@@ -12,11 +12,12 @@ This repo contains all the needed code and data to reproduce the paper SpICE: An
     - 02_run_models.R: Code to run models
     - 03_model_results.R: Code with model results
     - 04_spice_clusters.R: Code for cluster ICE curves
-    - zapp_simStudy.R: Appendix, sim study
+    - zapp_simStudy.R: Appendix, simulation study
     - zapp_toyExample.R: Appendix, Toy example
     
     
 ## Requirements: 
+
 Several R packages were used to produce paper's reults: 
 
 - General data manipulation and ploting: tidyverse, RColorBrewer,  patchwork
