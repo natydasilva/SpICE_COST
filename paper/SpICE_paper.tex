@@ -357,7 +357,7 @@ This article was written with the R packages \texttt{knitr} \citep{knitr}, \text
 
 
 % \renewcommand{\refname}{References }
-\bibliographystyle{apa}
+\bibliographystyle{apalike}
 \bibliography{bibcsic.bib}
 
 
@@ -369,7 +369,7 @@ This article was written with the R packages \texttt{knitr} \citep{knitr}, \text
 This section presents a model example in which the L2 distance is not a good choice for finding dissimilarities among ICE curves. Let us assume the regression model 
 \[\begin{array}{cl}
   Y_i   &  = f(X_{1,i}, X_{2,i}) + \epsilon_i  \\
-     & = -C(1-X_{1,i})X_{1,i} + \frac{1}{2}X_{2,i}(2- X_{1,i}-X^2_{1,i}) +X_{2,i}^{1+X_{1,i} \1{ \{X_{1,i}\geq 0\} } }  + \epsilon_i,
+     & = -C(1-X_{1,i})X_{1,i} + \frac{1}{2}X_{2,i}(2- X_{1,i}-X^2_{1,i}) +X_{2,i}^{1+X_{1,i} I_{ \{X_{1,i}\geq 0\} } }  + \epsilon_i,
 \end{array}\]
 where $X_1 \sim U(-1,1)$, $X_2\sim U(0,2)$ and $\epsilon_i$ represents white noise with a standard deviation $\sigma>0$. When the true $f()$ function is known, the ICE curves at three chosen points are $f(-1,x2)= 2C+2x_2$, $f(0,x2)=2x_2$ and $f(1,x2)=x_2^2$. If $C= -\sqrt{ \frac{\int_0^2(x^2-2x)^2 dx}{8}}$, then 
 $$d_2\left( f(-1,\cdot), f(0,\cdot)\right)= d_2\left( f(1,\cdot), f(0,\cdot)\right).$$
